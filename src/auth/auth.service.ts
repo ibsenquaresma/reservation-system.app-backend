@@ -12,29 +12,16 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(email: string, password: string) {
-    const hashed = await bcrypt.hash(password, 10);
-    const user = this.userRepo.create({ email, password: hashed });
-    return this.userRepo.save(user);
+  async register(username: string, email: string, password: string) {
+    const existing = await this.userRepo.findOne({ where: [{ email }, { username }] });
+    if (existing) throw new UnauthorizedException('User already exists');
+  
+    const hash = await bcrypt.hash(password, 10);
+    const newUser = this.userRepo.create({ username, email, password: hash });
+    await this.userRepo.save(newUser);
+  
+    return { message: 'User registered successfully' };
   }
-
-  // async login(email: string, password: string, res: any) {
-  //   const user = await this.userRepo.findOneBy({ email });
-  //   if (!user || !(await bcrypt.compare(password, user.password))) {
-  //     throw new UnauthorizedException('Invalid credentials');
-  //   }
-  //   const accessToken = this.jwtService.sign({ sub: user.id });
-  //   const refreshToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '7d' });
-  //   user.refreshToken = refreshToken;
-  //   await this.userRepo.save(user);
-  //   res.cookie('refreshToken', refreshToken, {
-  //     httpOnly: true,
-  //     secure: false,
-  //     sameSite: 'lax',
-  //     maxAge: 7 * 24 * 60 * 60 * 1000,
-  //   });
-  //   return { accessToken };
-  // }
 
   async login(email: string, password: string) {
     const user = await this.userRepo.findOneBy({ email });
