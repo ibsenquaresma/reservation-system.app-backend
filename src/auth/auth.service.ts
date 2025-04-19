@@ -1,15 +1,18 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { User } from 'src/User/Entity/user.entity';
+import { MailService } from 'src/mail/mail.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User) private userRepo: Repository<User>,
+    @InjectRepository(User) 
+    private userRepo: Repository<User>,
     private jwtService: JwtService,
+    private mailService: MailService,
   ) {}
 
   async register(username: string, email: string, password: string) {
@@ -73,5 +76,25 @@ export class AuthService {
     // });
   
     return { accessToken: newAccessToken };
-  }  
+  }
+
+  //fortgot password
+  async sendResetToken(email: string) {
+    console.log("Method sendResetToken: ");
+    const user = await this.userRepo.findOne({ where: { email } });
+    if (!user) throw new NotFoundException(user);
+
+    const token = this.jwtService.sign(
+      { email: user.email, sub: user.id },
+      { expiresIn: '15m' },
+    );
+
+    user.resetToken = token;
+    // TODO: Send email with reset link
+    const resetLink = `http://localhost:3001/reset-password?token=${token}`;
+    
+    await this.mailService.sendPasswordReset(user.email, resetLink);
+
+    return { message: 'Reset link sent to your email (check logs).' };
+  }
 }

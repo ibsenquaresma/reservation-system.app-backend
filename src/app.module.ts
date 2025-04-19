@@ -3,6 +3,8 @@ import { AuthModule } from './auth/auth.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { MailService } from './mail/mail.service';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
@@ -16,6 +18,9 @@ import { APP_GUARD } from '@nestjs/core';
       autoLoadEntities: true,
       synchronize: true,
     }),
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     ThrottlerModule.forRoot(
       {
         ttl: 60_000,
@@ -28,6 +33,7 @@ import { APP_GUARD } from '@nestjs/core';
       provide: APP_GUARD,
       useClass: ThrottlerGuard,
     },
+    MailService
   ],
 })
 export class AppModule {}

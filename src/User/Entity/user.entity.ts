@@ -5,7 +5,7 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ nullable: true })
   username: string;
 
   @Column({ unique: true })
@@ -16,4 +16,7 @@ export class User {
 
   @Column({ default: true })
   isActive: boolean;
+
+  @Column({ nullable: true })
+  resetToken: string;
 }
