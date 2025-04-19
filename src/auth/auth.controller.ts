@@ -1,5 +1,5 @@
 import { Controller, Post, Body, Res, Req, UseGuards, Param, HttpCode } from '@nestjs/common';
-import { ApiTags, ApiBody, ApiParam, ApiOkResponse, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { ApiTags, ApiBody, ApiParam, ApiOkResponse, ApiUnauthorizedResponse, ApiCreatedResponse, ApiConflictResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthDto } from './auth.dto';
 import { Throttle } from '@nestjs/throttler';
@@ -12,38 +12,16 @@ export class AuthController {
   constructor(private authService: AuthService) {}
 
   @Post('register')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', example: 'test@example.com' },
-        password: { type: 'string', example: '123456' },
-      },
-    },
-  })
+  @HttpCode(201)
+  @ApiBody({ type: RegisterDto })
+  @ApiCreatedResponse({ description: 'User registered successfully' })
+  @ApiConflictResponse({ description: 'User already exists' })
   @Throttle(2, 60)
   async register(@Body() dto: RegisterDto) {
-    const { email, password } = dto;
-    return this.authService.register(email, password);
+    return this.authService.register(dto.username, dto.email, dto.password);
   }
 
-  // @Post('login')
-  // @ApiBody({ type: AuthDto })
-  // login(@Body() dto: AuthDto, @Res({ passthrough: true }) res: any) {
-  //   return this.authService.login(dto.email, dto.password, res);
-  // }
 
-  @Post('login')
-  @ApiBody({
-    schema: {
-      type: 'object',
-      properties: {
-        email: { type: 'string', example: 'test@example.com' },
-        password: { type: 'string', example: '123456' },
-      },
-    },
-  })
-  
   @Post('login')
   @HttpCode(200)
   @ApiBody({ type: LoginDto })
