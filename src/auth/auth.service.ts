@@ -74,11 +74,11 @@ export class AuthService {
     //   sameSite: 'strict',
     //   maxAge: 15 * 60 * 1000,
     // });
-  
+    console.log('refresh');
     return { accessToken: newAccessToken };
   }
 
-  //fortgot password
+  //forgot password
   async sendResetToken(email: string) {
     console.log("Method sendResetToken: ");
     const user = await this.userRepo.findOne({ where: { email } });
@@ -91,10 +91,27 @@ export class AuthService {
 
     user.resetToken = token;
     // TODO: Send email with reset link
-    const resetLink = `http://localhost:3001/reset-password?token=${token}`;
+    const resetLink = `http://localhost:3000/reset-password?token=${token}`;
     
     await this.mailService.sendPasswordReset(user.email, resetLink);
 
     return { message: 'Reset link sent to your email (check logs).' };
+  }
+
+  async resetPassword(token: string, newPassword: string) {
+    try {
+      const payload = this.jwtService.verify(token);
+      const user = await this.userRepo.findOneBy({ id: payload.sub });
+
+      if (!user) throw new NotFoundException('User not found');
+
+      const hashed = await bcrypt.hash(newPassword, 10);
+      user.password = hashed;
+      await this.userRepo.save(user);
+
+      return { message: 'Password reset successfully' };
+    } catch {
+      throw new UnauthorizedException('Invalid or expired token');
+    }
   }
 }

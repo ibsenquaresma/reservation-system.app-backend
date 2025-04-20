@@ -6,6 +6,7 @@ import { Throttle } from '@nestjs/throttler';
 import { LoginDto } from 'src/User/dto/LoginDto';
 import { RegisterDto } from 'src/User/dto/RegisterDto';
 import { ForgotPasswordDto } from 'src/User/dto/forgot-password.dto';
+import { ResetPasswordDto } from 'src/User/dto/reset-password.dto';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -42,15 +43,18 @@ export class AuthController {
     return this.authService.sendResetToken(dto.email);
   }
 
-  // @Post('refresh')
-  // refresh(@Req() req: any, @Res({ passthrough: true }) res: any) {
-  //   const token = req.cookies?.refreshToken;
-  //   const payload = this.authService['jwtService'].verify(token);
-  //   return this.authService.refresh(payload.sub, res);
-  // }
   @Post('refresh/:userId') // O parâmetro é passado pela URL
   @ApiParam({ name: 'userId', description: 'User ID for refresh token' }) // Swagger documenta o userId
   async refresh(@Param('userId') userId: number, @Res() res: any) {
     return this.authService.refresh(userId, res);
+  }
+
+  @Post('reset-password')
+  @ApiOperation({ summary: 'Reset password with token' })
+  @ApiBody({ type: ResetPasswordDto })
+  @ApiResponse({ status: 200, description: 'Password reset successful' })
+  @ApiResponse({ status: 401, description: 'Invalid or expired token' })
+  async resetPassword(@Body() dto: ResetPasswordDto) {
+    return this.authService.resetPassword(dto.token, dto.password);
   }
 }
