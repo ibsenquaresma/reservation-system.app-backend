@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, Req, UseGuards, Param, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, Res, Request, Req, UseGuards, Param, HttpCode } from '@nestjs/common';
 import { ApiTags, ApiBody, ApiParam, ApiOkResponse, ApiUnauthorizedResponse, ApiCreatedResponse, ApiConflictResponse, ApiOperation, ApiResponse } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { AuthDto } from './auth.dto';
@@ -7,6 +7,7 @@ import { LoginDto } from 'src/User/dto/LoginDto';
 import { RegisterDto } from 'src/User/dto/RegisterDto';
 import { ForgotPasswordDto } from 'src/User/dto/forgot-password.dto';
 import { ResetPasswordDto } from 'src/User/dto/reset-password.dto';
+import { JwtAuthGuard } from './jwt.authguard';
 
 @ApiTags('auth')
 @Controller('auth')
@@ -31,7 +32,22 @@ export class AuthController {
   @ApiUnauthorizedResponse({ description: 'Invalid credentials' })
   @Throttle(5, 60)
   async login(@Body() dto: LoginDto) {
+    const user = await this.authService.validateUser(
+      dto.email,
+      dto.password,
+    );
     return this.authService.login(dto.email, dto.password);
+  }
+
+  @Post('logout')
+  async logout(@Res({ passthrough: true }) response: Response) {
+    return this.authService.logout(response);
+  }
+
+  @Post('profile')
+  @UseGuards(JwtAuthGuard)
+  getProfile(@Request() req) {
+    return req.user;
   }
 
   @Post('forgot-password')
