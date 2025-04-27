@@ -9,10 +9,15 @@ import { JwtStrategy } from './jwt.strategy';
 import { MailService } from 'src/mail/mail.service';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { UserService } from 'src/User/user.service';
+import { ThrottlerModule } from '@nestjs/throttler';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([User]),
+    ThrottlerModule.forRoot({
+      ttl: 60,        // Tempo (em segundos)
+      limit: 20,      // Permite até 20 requests por minuto
+    }),
     PassportModule,
     JwtModule.registerAsync({
       imports: [ConfigModule],
