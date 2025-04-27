@@ -43,8 +43,9 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
-    const accessToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign({ sub: user.id }, { expiresIn: '7d' });
+    const payload = { sub: user.id, email: user.email };
+    const accessToken = this.jwtService.sign({ payload }, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign({ payload }, { expiresIn: '7d' });
     console.log("service login accessToken " + accessToken);
 
     return {
@@ -59,6 +60,7 @@ export class AuthService {
 
   async logout(response: any) {
     response.clearCookie('refreshToken');
+    response.clearCookie('accessToken');
     console.log("Logout successful")
     return { message: 'Logout successful' };
   }

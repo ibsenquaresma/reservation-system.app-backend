@@ -7,7 +7,7 @@ import { LoginDto } from 'src/User/dto/LoginDto';
 import { RegisterDto } from 'src/User/dto/RegisterDto';
 import { ForgotPasswordDto } from 'src/User/dto/forgot-password.dto';
 import { ResetPasswordDto } from 'src/User/dto/reset-password.dto';
-import { JwtAuthGuard } from './jwt.authguard';
+import { JwtAuthGuard } from './jwt.auth.guard';
 
 @ApiTags('auth')
 @Controller('auth')
