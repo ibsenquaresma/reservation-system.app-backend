@@ -22,8 +22,12 @@ async function bootstrap() {
     origin: true,
     credentials: true,
   });
-  app.useGlobalPipes(new ValidationPipe());
-
+  app.useGlobalPipes(new ValidationPipe({
+    transform: true, // Converte para DTO
+    whitelist: true, // Remove campos desconhecidos
+    forbidNonWhitelisted: true, // Erro se enviar algo que não existe no DTO
+  }));
+  
   const config = new DocumentBuilder()
     .setTitle('Auth API')
     .setDescription('JWT Auth with refresh token')
