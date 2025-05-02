@@ -5,9 +5,13 @@ import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
 import { MailService } from './mail/mail.service';
 import { ConfigModule } from '@nestjs/config';
+import { RoomModule } from './app/room/room.module';
+import { ReservationModule } from './app/Reservation/reservation.module';
 
 @Module({
   imports: [
+    RoomModule,
+    ReservationModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',

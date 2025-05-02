@@ -23,9 +23,9 @@ async function bootstrap() {
     credentials: true,
   });
   app.useGlobalPipes(new ValidationPipe({
-    transform: true, // Converte para DTO
-    whitelist: true, // Remove campos desconhecidos
-    forbidNonWhitelisted: true, // Erro se enviar algo que não existe no DTO
+    transform: true,
+    whitelist: true,
+    forbidNonWhitelisted: true,
   }));
   
   const config = new DocumentBuilder()
