@@ -19,4 +19,7 @@ export class User {
 
   @Column({ nullable: true })
   resetToken: string;
+
+  @Column({ nullable: true })
+  refreshToken: string;
 }

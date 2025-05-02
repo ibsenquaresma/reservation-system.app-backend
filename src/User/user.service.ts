@@ -73,4 +73,9 @@ export class UserService {
     user.resetToken = token;
     return this.userRepo.save(user);
   }
+
+  async updateRefreshToken(userId: number, hashedToken: string) {
+    await this.userRepo.update(userId, { refreshToken: hashedToken });
+  }
+  
 }

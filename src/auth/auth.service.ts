@@ -37,16 +37,17 @@ export class AuthService {
 
   async login(email: string, password: string) {
     const user = await this.userService.validateUser(email, password);
-    console.log("service login");
     if (!user) {
-      console.log("service login UnauthorizedException 1");
       throw new UnauthorizedException('Invalid credentials');
     }
 
     const payload = { sub: user.id, email: user.email };
-    const accessToken = this.jwtService.sign({ payload }, { expiresIn: '15m' });
-    const refreshToken = this.jwtService.sign({ payload }, { expiresIn: '7d' });
-    console.log("service login accessToken " + accessToken);
+
+    const accessToken = this.jwtService.sign(payload, { expiresIn: '15m' });
+    const refreshToken = this.jwtService.sign(payload, { expiresIn: '7d' });
+
+    const hashedRefreshToken = await bcrypt.hash(refreshToken, 10);
+    await this.userService.updateRefreshToken(user.id, hashedRefreshToken);
 
     return {
       accessToken,
@@ -54,6 +55,7 @@ export class AuthService {
       user: {
         id: user.id,
         email: user.email,
+        username: user.username,
       },
     };
   }
