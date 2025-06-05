@@ -22,12 +22,6 @@ export class MailService {
 
     this.transporter = nodemailer.createTransport(
       {
-        // host: "sandbox.smtp.mailtrap.io",
-        // port: 2525,
-        // auth: {
-        //   user: "6a25b16fabddaf",
-        //   pass: "e14bbbeddb710b"
-        // }
         host: smtpHost,
         port: smtpPort,
         auth: {
